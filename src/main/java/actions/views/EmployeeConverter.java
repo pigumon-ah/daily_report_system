@@ -14,35 +14,38 @@ import models.Employee;
 public class EmployeeConverter {
 
     /**
-     * ViewモデルのインスタンスからDTOモデルのインスタンスを生成する
+     * ViewモデルのインスタンスからDTOモデルのインスタンスを作成する
      * @param ev EmployeeViewのインスタンス
      * @return Employeeのインスタンス
      */
     public static Employee toModel(EmployeeView ev) {
+
         return new Employee(
                 ev.getId(),
                 ev.getCode(),
                 ev.getName(),
                 ev.getPassword(),
-                ev.getAdminFlag()==null
-                        ?null
-                        :ev.getAdminFlag()==AttributeConst.ROLE_ADMIN.getIntegerValue()
-                        ? JpaConst.ROLE_ADMIN
-                        : JpaConst.ROLE_GENERAL,
+                ev.getAdminFlag() == null
+                        ? null
+                        : ev.getAdminFlag() == AttributeConst.ROLE_ADMIN.getIntegerValue()
+                                ? JpaConst.ROLE_ADMIN
+                                : JpaConst.ROLE_GENERAL,
                 ev.getCreatedAt(),
                 ev.getUpdatedAt(),
-                ev.getDeleteFlag()==null
-                        ?null
-                        :ev.getDeleteFlag()==AttributeConst.ROLE_GENERAL.getIntegerValue()
-                        ? JpaConst.EMP_DEL_TRUE
-                        : JpaConst.EMP_DEL_FALSE);
+                ev.getDeleteFlag() == null
+                        ? null
+                        : ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()
+                                ? JpaConst.EMP_DEL_TRUE
+                                : JpaConst.EMP_DEL_FALSE);
     }
-/**
- * DTOモデルのインスタンスからviewモデルのインスタンス生成
- * @param e Employeeのインスタンス
- * @return EmployeeViewのインスタンス
- */
+
+    /**
+     * DTOモデルのインスタンスからViewモデルのインスタンスを作成する
+     * @param e Employeeのインスタンス
+     * @return EmployeeViewのインスタンス
+     */
     public static EmployeeView toView(Employee e) {
+
         if(e == null) {
             return null;
         }
@@ -52,40 +55,40 @@ public class EmployeeConverter {
                 e.getCode(),
                 e.getName(),
                 e.getPassword(),
-                e.getAdminFlag()==null
-                        ?null
-                        : e.getAdminFlag()==JpaConst.ROLE_ADMIN
+                e.getAdminFlag() == null
+                        ? null
+                        : e.getAdminFlag() == JpaConst.ROLE_ADMIN
                                 ? AttributeConst.ROLE_ADMIN.getIntegerValue()
                                 : AttributeConst.ROLE_GENERAL.getIntegerValue(),
                 e.getCreatedAt(),
                 e.getUpdatedAt(),
-                e.getDeleteFlag()==null
-                        ?null
-                        :e.getDeleteFlag()==JpaConst.EMP_DEL_TRUE
+                e.getDeleteFlag() == null
+                        ? null
+                        : e.getDeleteFlag() == JpaConst.EMP_DEL_TRUE
                                 ? AttributeConst.DEL_FLAG_TRUE.getIntegerValue()
                                 : AttributeConst.DEL_FLAG_FALSE.getIntegerValue());
-
     }
 
-/**
- * DTOモデルのリストからViewモデルのリストを作成する
- * @param list DTOモデルのリスト
- * @return Viewモデルのリスト
- */
-    public static List<EmployeeView>toViewList(List<Employee>list){
-        List<EmployeeView> evs=new ArrayList<>();
+    /**
+     * DTOモデルのリストからViewモデルのリストを作成する
+     * @param list DTOモデルのリスト
+     * @return Viewモデルのリスト
+     */
+    public static List<EmployeeView> toViewList(List<Employee> list) {
+        List<EmployeeView> evs = new ArrayList<>();
 
-        for(Employee e : list) {
+        for (Employee e : list) {
             evs.add(toView(e));
         }
 
         return evs;
     }
- /**
-  * Viewモデルの全フィールドの内容をDTOモデルのフィールドにコピー
-  * @param e DTOモデル (コピー先)
-  * @param ev Viewモデル (コピー元)
-  */
+
+    /**
+     * Viewモデルの全フィールドの内容をDTOモデルのフィールドにコピーする
+     * @param e DTOモデル(コピー先)
+     * @param ev Viewモデル(コピー元)
+     */
     public static void copyViewToModel(Employee e, EmployeeView ev) {
         e.setId(ev.getId());
         e.setCode(ev.getCode());
@@ -97,4 +100,5 @@ public class EmployeeConverter {
         e.setDeleteFlag(ev.getDeleteFlag());
 
     }
+
 }
