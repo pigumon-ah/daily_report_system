@@ -157,4 +157,46 @@ public class EmployeeAction extends ActionBase {
         forward(ForwardConst.FW_EMP_EDIT);
 
     }
+
+    /**
+     * 更新を行う
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void update() throws ServletException, IOException{
+
+        if(checkToken()) {
+            //パラメータの値を元に従業員情報のインスタンスを生成
+            EmployeeView ev = new EmployeeView(
+                    toNumber(getRequestParam(AttributeConst.EMP_ID)),
+                    getRequestParam(AttributeConst.EMP_CODE),
+                    getRequestParam(AttributeConst.EMP_NAME),
+                    getRequestParam(AttributeConst.EMP_PASS),
+                    toNumber(getRequestParam(AttributeConst.EMP_ADMIN_FLG)),
+                    null,
+                    null,
+                    AttributeConst.DEL_FLAG_FALSE.getIntegerValue());
+            
+            //アプリケーションスコープからpepper文字列を取得
+            String pepper = getContextScope(PropertyConst.PEPPER);
+            //従業員情報更新
+            List<String> errors = service.update(ev, pepper);
+            
+            if(errors.size()>0) {
+                //更新中エラーが発生した
+                putRequestScope(AttributeConst.TOKEN, getTokenId());
+                putRequestScope(AttributeConst.EMPLOYEE, ev);
+                putRequestScope(AttributeConst.ERR, errors);
+                //編集画面を再表示
+                forward(ForwardConst.FW_EMP_EDIT);
+            }else {
+                //更新中エラーなし
+                //セッションに更新完了のフラッシュメッセージ
+                putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
+                
+                //一覧画面にリダイレクト
+                redirect(ForwardConst.ACT_EMP, ForwardConst.CMD_INDEX);
+            }
+        }
+    }
 }
