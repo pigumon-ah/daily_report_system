@@ -33,7 +33,8 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
     public void index() throws ServletException, IOException {
-
+        //権限チェック
+        if(checkAdmin()) {
         //指定されたページ数の一覧画面に表示するデータを取得
         int page = getPage();
         List<EmployeeView> employees = service.getPerPage(page);
@@ -55,6 +56,7 @@ public class EmployeeAction extends ActionBase {
         //一覧画面表示
         forward(ForwardConst.FW_EMP_INDEX);
 
+        }
     }
     /**
      * 新規登録画面を表示する
@@ -62,13 +64,14 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
     public void entryNew() throws ServletException, IOException {
-
+        if(checkAdmin()) {
         putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
         putRequestScope(AttributeConst.EMPLOYEE, new EmployeeView()); //空の従業員インスタンス
 
         //新規登録画面を表示
         forward(ForwardConst.FW_EMP_NEW);
-    }
+        }
+     }
     /**
      * 新規登録を行う
      * @throws ServletException
@@ -76,7 +79,7 @@ public class EmployeeAction extends ActionBase {
      */
     public void create() throws ServletException,IOException{
          //CSRF対策 TOKENのチェック
-        if(checkToken()) {
+        if(checkToken()&&checkAdmin()) {
             EmployeeView ev = new EmployeeView(
                     null,
                     getRequestParam(AttributeConst.EMP_CODE),
@@ -109,7 +112,7 @@ public class EmployeeAction extends ActionBase {
 
                 //一覧画面へ
                 redirect(ForwardConst.ACT_EMP,ForwardConst.CMD_INDEX);
-            }
+           }
         }
     }
 
@@ -119,6 +122,8 @@ public class EmployeeAction extends ActionBase {
     * @throws IOException
     */
     public void show() throws ServletException, IOException{
+
+        if(checkAdmin()) {
         //idを条件に従業員データを取得
         EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
 
@@ -131,6 +136,7 @@ public class EmployeeAction extends ActionBase {
         putRequestScope(AttributeConst.EMPLOYEE, ev);
         //詳細画面を表示
         forward(ForwardConst.FW_EMP_SHOW);
+        }
     }
 
     /**
@@ -139,7 +145,7 @@ public class EmployeeAction extends ActionBase {
      * @throws IOException
      */
     public void edit() throws ServletException, IOException {
-
+        if(checkAdmin()) {
         //idを条件に従業員データを取得する
         EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
 
@@ -156,6 +162,7 @@ public class EmployeeAction extends ActionBase {
         //編集画面を表示する
         forward(ForwardConst.FW_EMP_EDIT);
 
+        }
     }
 
     /**
@@ -165,7 +172,7 @@ public class EmployeeAction extends ActionBase {
      */
     public void update() throws ServletException, IOException{
 
-        if(checkToken()) {
+        if(checkToken()&&checkAdmin()) {
             //パラメータの値を元に従業員情報のインスタンスを生成
             EmployeeView ev = new EmployeeView(
                     toNumber(getRequestParam(AttributeConst.EMP_ID)),
@@ -176,12 +183,12 @@ public class EmployeeAction extends ActionBase {
                     null,
                     null,
                     AttributeConst.DEL_FLAG_FALSE.getIntegerValue());
-            
+
             //アプリケーションスコープからpepper文字列を取得
             String pepper = getContextScope(PropertyConst.PEPPER);
             //従業員情報更新
             List<String> errors = service.update(ev, pepper);
-            
+
             if(errors.size()>0) {
                 //更新中エラーが発生した
                 putRequestScope(AttributeConst.TOKEN, getTokenId());
@@ -193,7 +200,7 @@ public class EmployeeAction extends ActionBase {
                 //更新中エラーなし
                 //セッションに更新完了のフラッシュメッセージ
                 putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
-                
+
                 //一覧画面にリダイレクト
                 redirect(ForwardConst.ACT_EMP, ForwardConst.CMD_INDEX);
             }
@@ -206,15 +213,34 @@ public class EmployeeAction extends ActionBase {
      */
     public void destroy()throws ServletException, IOException{
         //CSRF対策tokenチェック
-        if(checkToken()) {
+        if(checkToken()&&checkAdmin()) {
             //idを条件に従業員データを論理削除する
             service.destroy(toNumber(getRequestParam(AttributeConst.EMP_ID)));
-            
+
             //セッションに削除完了のフラッシュメッセージを設定
             putSessionScope(AttributeConst.FLUSH, MessageConst.I_DELETED.getMessage());
-            
+
             //一覧画面にリダイレクト
             redirect(ForwardConst.ACT_EMP, ForwardConst.CMD_INDEX);
+        }
+    }
+    /**
+     * ログイン中の従業員が管理者かどうかチェックし、管理者でなければエラー画面に
+     * true : 管理者 :false 管理者ではない
+     * @throws ServletException
+     * @throws IOException
+     */
+    private boolean checkAdmin() throws ServletException, IOException{
+        //セッションからログイン中の従業員情報を取得
+        EmployeeView ev = (EmployeeView)getSessionScope(AttributeConst.LOGIN_EMP);
+
+        //管理者ではない場合エラー画面へ
+        if(ev.getAdminFlag() != AttributeConst.ROLE_ADMIN.getIntegerValue()) {
+
+            forward(ForwardConst.FW_ERR_UNKNOWN);
+            return false;
+        }else {
+            return true;
         }
     }
 }
