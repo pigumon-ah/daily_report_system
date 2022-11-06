@@ -14,7 +14,7 @@ public class ReportConverter {
      * @param rv ReportView のインスタンス
      * @return Report のインスタンス
      */
-    public static Report tomodel(ReportView rv) {
+    public static Report toModel(ReportView rv) {
         return new Report(rv.getId(),
                     EmployeeConverter.toModel(rv.getEmployee()),
                     rv.getReportDate(),
@@ -32,7 +32,7 @@ public class ReportConverter {
         if(r == null) {
             return null;
         }
-        
+
         return new ReportView(
                 r.getId(),
                 EmployeeConverter.toView(r.getEmployee()),
@@ -42,7 +42,7 @@ public class ReportConverter {
                 r.getCreatedAt(),
                 r.getUpdatedAt());
     }
-    
+
     /**
      * DTOモデルのリストからViewモデルのリスト作成
      * @param list DTOモデルのリスト
@@ -50,11 +50,11 @@ public class ReportConverter {
      */
     public static List<ReportView> toViewList(List<Report> list){
         List<ReportView> evs = new ArrayList<>();
-        
+
         for(Report r : list) {
             evs.add(toView(r));
         }
-        
+
         return evs;
     }
     /**
@@ -62,7 +62,7 @@ public class ReportConverter {
      * @param r DTOモデル（コピー先）
      * @param rv Viewモデル（コピー元）
      */
-    public static void copyCieToModel(Report r, ReportView rv) {
+    public static void copyViewToModel(Report r, ReportView rv) {
         r.setId(rv.getId());
         r.setEmployee(EmployeeConverter.toModel(rv.getEmployee()));
         r.setReportDate(rv.getReportDate());
