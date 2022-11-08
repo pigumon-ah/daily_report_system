@@ -1,4 +1,4 @@
-@CHARSET "UTF-8";
+@charset "UTF-8";
 
 body {
     color: #333333;
@@ -148,13 +148,16 @@ table#report_list .report_action {
     color: #000000;
 }
 td a{
-    color: #222222;
+    color: #1d56a5;
 }
 p a{
-    color: #222222;
+    color: #1d56a5;
 }
 pre {
     font-family: "Hiragino Kaku Gothic Pro",Meiryo,"MS PGothic",Helvetica,Arial,sans-serif;
+}
+h3{
+    font-size: larger;
 }
 
 
