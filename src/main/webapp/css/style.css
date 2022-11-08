@@ -148,10 +148,13 @@ table#report_list .report_action {
     color: #000000;
 }
 td a{
-    color: #333333;
+    color: #222222;
 }
 p a{
-    color: #333333;
+    color: #222222;
+}
+pre {
+    font-family: "Hiragino Kaku Gothic Pro",Meiryo,"MS PGothic",Helvetica,Arial,sans-serif;
 }
 
 
