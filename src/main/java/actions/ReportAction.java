@@ -148,4 +148,64 @@ public class ReportAction extends ActionBase {
             forward(ForwardConst.FW_REP_SHOW);
         }
     }
+
+    /**
+     * 編集画面を表示
+     * @throws ServletException
+     * @throws IOExeption
+     */
+    public void edit() throws ServletException,IOException {
+        //idを条件に日報データを取得
+        ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        //セッションからログイン中の従業員情報取得
+        EmployeeView ev = (EmployeeView)getSessionScope(AttributeConst.LOGIN_EMP);
+
+        if(rv == null || ev.getId() != rv.getEmployee().getId()) {
+            //データが存在しない、作った本人でない場合エラー画面へ
+            forward(ForwardConst.FW_ERR_UNKNOWN);
+        }else {
+
+            putRequestScope(AttributeConst.TOKEN, getTokenId());
+            putRequestScope(AttributeConst.REPORT, rv);
+
+            //編集画面表示
+            forward(ForwardConst.FW_REP_EDIT);
+        }
+    }
+    
+    /**
+     * 更新を行う
+     * @throws ServletException
+     * @throws IOException
+     */
+    public void update() throws ServletException, IOException{
+        
+        //CSRF対策
+        if(checkToken()) {
+            //idを条件に日報データ取得
+            ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+            
+            //入力された日報内容を設定
+            rv.setReportDate(toLocalDate(getRequestParam(AttributeConst.REP_DATE)));
+            rv.setTitle(getRequestParam(AttributeConst.REP_TITLE));
+            rv.setContent(getRequestParam(AttributeConst.REP_CONTENT));
+            
+            List<String> errors = service.update(rv);
+            
+            if(errors.size()>0) {
+                //エラー
+                putRequestScope(AttributeConst.TOKEN, getTokenId());
+                putRequestScope(AttributeConst.REPORT, rv);
+                putRequestScope(AttributeConst.ERR, errors );
+                
+                //編集画面へ
+                forward(ForwardConst.FW_REP_EDIT);
+            }else {
+                //エラーなし
+                putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
+                
+                redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
+            }
+        }
+    }
 }
